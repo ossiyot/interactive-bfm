@@ -100,14 +100,6 @@ class Plane {
 
    display() {
       push();
-      fill(this.c);
-      strokeWeight(1);
-      translate(this.x, this.y);
-      rotate(-this.angle + HALF_PI);
-      triangle(0, -this.r * 2, -this.r, this.r * 2, this.r, this.r * 2);
-      pop();
-
-      push();
       fill(0, 0);
       stroke(this.c);
       strokeWeight(0.5);
@@ -115,6 +107,14 @@ class Plane {
       pop();
 
       drawArrow(createVector(this.x, this.y), createVector(this.offsetX-this.x, this.offsetY-this.y), this.c);
+
+      push();
+      fill(this.c);
+      strokeWeight(1);
+      translate(this.x, this.y);
+      rotate(-this.angle + HALF_PI);
+      triangle(0, -this.r * 2, -this.r, this.r * 2, this.r, this.r * 2);
+      pop();
    }
 
    setAmplitude(A) {
