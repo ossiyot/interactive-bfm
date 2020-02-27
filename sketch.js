@@ -2,7 +2,7 @@ let friendlyPlane;
 let enemyPlane;
 
 function setup() {
-   createCanvas(800, 600);
+   createCanvas(800, 850);
 
    //#region Sliders
    amplitudeSlider = createSlider(1, 300, 200, 0);
@@ -22,12 +22,12 @@ function setup() {
    lagSlider.style('width', '160px');
    //#endregion Sliders
 
-   enemyPlane = new Plane(width / 2, height / 2, color(255, 0, 0));
-   friendlyPlane = new Plane(width / 2, height / 2, color(0, 255, 0));
+   enemyPlane = new Plane(width / 2, 350, color(255, 0, 0));
+   friendlyPlane = new Plane(width / 2, 350, color(0, 255, 0));
 }
 
 function draw() {
-   background(255);
+   background(240);
 
    let time = millis() / 1000;
 
@@ -58,9 +58,17 @@ function draw() {
    enemyPlane.move(time);
    enemyPlane.display();
 
+   push();
+   stroke(255);
+   rect(50, 600, 750-50, 800-600);
+   pop();
+   plotEquation(50, 750, 600, 800, distancePerTime, 0, TWO_PI, 100, color(0));
+   plotEquation(50, 750, 600, 800, anglePerTime, 0, TWO_PI, 100, color(255, 0, 0));
+
    lineBetweenPlanes(friendlyPlane, enemyPlane);
-   text("Distance: "+round(distance(friendlyPlane, enemyPlane)), width-200, 30)
-   text("Angle: "+nfc(abs(degrees(angleDifference(enemyPlane, friendlyPlane))), 2), width-200, 60)
+   text("Distance: " + round(distance(friendlyPlane, enemyPlane)), width - 200, 30)
+   text("Angle: " + nfc(abs(degrees(angleDifference(enemyPlane, friendlyPlane))), 2), width - 200, 60)
+
 }
 
 class Plane {
@@ -122,6 +130,8 @@ class Plane {
    setLag(lag) {
       this.lag = lag;
    }
+
+
 }
 
 function lineBetweenPlanes(plane1, plane2) {
@@ -132,13 +142,13 @@ function lineBetweenPlanes(plane1, plane2) {
 }
 
 function distance(plane1, plane2) {
-   return sqrt((plane1.x-plane2.x)**2 + (plane1.y-plane2.y)**2);
+   return sqrt((plane1.x - plane2.x) ** 2 + (plane1.y - plane2.y) ** 2);
 }
 
 function angleDifference(p1, p2) {
-   let v1 = createVector(p1.y-p1.offsetY, -(p1.x-p1.offsetX)); // Inverted to get tangent vector
-   let v2 = createVector(p2.x-p1.x, p2.y-p1.y);
-   
+   let v1 = createVector(p1.y - p1.offsetY, -(p1.x - p1.offsetX)); // Inverted to get tangent vector
+   let v2 = createVector(p2.x - p1.x, p2.y - p1.y);
+
    /*   DEBUG
    let v0 = createVector(p1.x, p1.y);
    drawArrow(v0, v1, 'red');
@@ -148,7 +158,8 @@ function angleDifference(p1, p2) {
    return v1.angleBetween(v2);
 }
 
-function drawArrow(base, vec, myColor) {
+
+function drawArrow(base, vec, myColor) {  // DEBUG
    push();
    stroke(myColor);
    strokeWeight(3);
@@ -160,8 +171,45 @@ function drawArrow(base, vec, myColor) {
    translate(vec.mag() - arrowSize, 0);
    triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
    pop();
- }
+}
 
-function plotEquation(x, y, equation) {
-   return;
+function plotEquation(left, right, top, bottom, equation, start, end, steps, c) {
+   let values = []
+   let xvalues = []
+   let step = (end - start) / steps;
+   for (let i = 0; i <= steps; i++) {
+      values[i] = equation(i*step+start);
+      xvalues[i] = i*step+start;
+   }
+
+   let largest = max(values);
+   let smallest = min(values);
+
+
+   for(let i = 0; i < values.length; i++) {
+      values[i] = map(values[i], smallest, largest, bottom, top);
+      xvalues[i] = map(xvalues[i], start, end, left, right);
+   }
+   push();
+   stroke(c);
+   for(let i = 0; i < values.length-1; i++) {
+      line(xvalues[i], values[i], xvalues[i+1], values[i+1]);
+   }
+   pop();
+}
+
+function distancePerTime(t) {
+   let p1 = Object.assign( Object.create( Object.getPrototypeOf(friendlyPlane)), friendlyPlane);
+   let p2 = Object.assign( Object.create( Object.getPrototypeOf(enemyPlane)), enemyPlane);
+   p1.move(t);
+   p2.move(t);
+   return distance(p1, p2);
+}
+
+function anglePerTime(t) {
+   let p1 = Object.assign( Object.create( Object.getPrototypeOf(friendlyPlane)), friendlyPlane);
+   let p2 = Object.assign( Object.create( Object.getPrototypeOf(enemyPlane)), enemyPlane);
+   p1.move(t);
+   p2.move(t);
+   return angleDifference(p1, p2);
 }
