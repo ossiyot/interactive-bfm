@@ -66,8 +66,12 @@ function draw() {
    plotEquation(50, 750, 600, 800, anglePerTime, 0, TWO_PI, 100, color(255, 0, 0));
 
    lineBetweenPlanes(friendlyPlane, enemyPlane);
-   text("Distance: " + round(distance(friendlyPlane, enemyPlane)), width - 200, 30)
-   text("Angle: " + nfc(abs(degrees(angleDifference(enemyPlane, friendlyPlane))), 2), width - 200, 60)
+   text("Distance: " + round(distance(friendlyPlane, enemyPlane)), width - 200, 30);
+   push();
+   stroke(255, 0, 0);
+   fill(255, 0, 0);
+   text("Angle: " + nfc(abs(degrees(angleDifference(enemyPlane, friendlyPlane))), 2), width - 200, 60);
+   pop();
 
 }
 
@@ -100,11 +104,7 @@ class Plane {
       strokeWeight(1);
       translate(this.x, this.y);
       rotate(-this.angle + HALF_PI);
-      beginShape();
-      vertex(0, -this.r * 2);
-      vertex(-this.r, this.r * 2);
-      vertex(this.r, this.r * 2);
-      endShape(CLOSE);
+      triangle(0, -this.r * 2, -this.r, this.r * 2, this.r, this.r * 2);
       pop();
 
       push();
@@ -113,6 +113,8 @@ class Plane {
       strokeWeight(0.5);
       circle(this.offsetX, this.offsetY, this.amplitude * 2)
       pop();
+
+      drawArrow(createVector(this.x, this.y), createVector(this.offsetX-this.x, this.offsetY-this.y), this.c);
    }
 
    setAmplitude(A) {
@@ -162,7 +164,7 @@ function angleDifference(p1, p2) {
 function drawArrow(base, vec, myColor) {  // DEBUG
    push();
    stroke(myColor);
-   strokeWeight(3);
+   strokeWeight(2);
    fill(myColor);
    translate(base.x, base.y);
    line(0, 0, vec.x, vec.y);
@@ -173,12 +175,13 @@ function drawArrow(base, vec, myColor) {  // DEBUG
    pop();
 }
 
+//#region EXPERIMENTAL
 function plotEquation(left, right, top, bottom, equation, start, end, steps, c) {
    let values = []
    let xvalues = []
    let step = (end - start) / steps;
    for (let i = 0; i <= steps; i++) {
-      values[i] = equation(i*step+start);
+      values[i] = round(equation(i*step+start)*10000)/10000;
       xvalues[i] = i*step+start;
    }
 
@@ -194,6 +197,9 @@ function plotEquation(left, right, top, bottom, equation, start, end, steps, c) 
    stroke(c);
    for(let i = 0; i < values.length-1; i++) {
       line(xvalues[i], values[i], xvalues[i+1], values[i+1]);
+   }
+   if (largest == smallest) {
+      line(left, (bottom+top)/2, right, (bottom+top)/2);
    }
    pop();
 }
@@ -213,3 +219,4 @@ function anglePerTime(t) {
    p2.move(t);
    return angleDifference(p1, p2);
 }
+//#endregion EXPERIMENTAL
