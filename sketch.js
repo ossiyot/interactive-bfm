@@ -217,6 +217,6 @@ function anglePerTime(t) {
    let p2 = Object.assign( Object.create( Object.getPrototypeOf(enemyPlane)), enemyPlane);
    p1.move(t);
    p2.move(t);
-   return angleDifference(p1, p2);
+   return abs(angleDifference(p1, p2));
 }
 //#endregion EXPERIMENTAL
